@@ -17,6 +17,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import SettingsBrightnessOutlinedIcon from '@mui/icons-material/SettingsBrightnessOutlined';
+import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   flex: 1;
@@ -26,6 +27,8 @@ const Container = styled.div`
   font-size: 14px;
   position: sticky;
   top: 0;
+  /* overflow-y: scroll; */
+  /* overflow: scroll; */
 `;
 const Wrapper = styled.div`
   padding: 18px 26px;
@@ -46,6 +49,10 @@ const Item = styled.div`
   gap: 20px;
   cursor: pointer;
   padding: 8px 0;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.soft};
+  }
 `;
 const Hr = styled.hr`
   margin: 15px 0;
@@ -76,10 +83,13 @@ const Menu = ({ darkMode, setDarkMode }) => {
   return (
     <Container>
       <Wrapper>
-        <Logo>
-          <Img src={YoutubeLogo} />
-          KuraoTub
-        </Logo>
+        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Logo>
+            <Img src={YoutubeLogo} />
+            <span>KuraoTub </span>
+          </Logo>
+        </Link>
+
         <Item>
           <HomeIcon /> Home
         </Item>
@@ -103,9 +113,11 @@ const Menu = ({ darkMode, setDarkMode }) => {
         <Hr></Hr>
         <Login>
           Sign in to like videos, comment, and subcribe.
-          <Button>
-            <AccountCircleOutlinedIcon /> SIGN IN
-          </Button>
+          <Link to="/login" style={{ textDecoration: 'none' }}>
+            <Button>
+              <AccountCircleOutlinedIcon /> SIGN IN
+            </Button>
+          </Link>
         </Login>
         <Hr></Hr>
         <Title>WIBU ADMINYA</Title>
