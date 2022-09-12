@@ -22,9 +22,9 @@ const connect = () => {
 app.use(cookieParser());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/comment', commentRoutes);
-app.use('/api/video', videoRoutes);
+app.use('/api/videos', videoRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;
