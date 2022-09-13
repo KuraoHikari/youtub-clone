@@ -61,7 +61,7 @@ export const addView = async (req, res, next) => {
 };
 export const trenVideo = async (req, res, next) => {
   try {
-    const videos = await Video().sort({ views: -1 });
+    const videos = await Video.find().sort({ views: -1 }).limit(20);
     return res.status(200).json(videos);
   } catch (error) {
     next(error);
@@ -86,6 +86,24 @@ export const subVideo = async (req, res, next) => {
       })
     );
     res.status(200).json(list.flat().sort((a, b) => b.createdAt - a.createdAt));
+  } catch (error) {
+    next(error);
+  }
+};
+export const getByTags = async (req, res, next) => {
+  const tags = req.query.tags.split(',');
+  try {
+    const videos = await Video.find({ tags: { $in: tags } }).limit(20);
+    return res.status(200).json(videos);
+  } catch (error) {
+    next(error);
+  }
+};
+export const getBySearch = async (req, res, next) => {
+  const query = req.query.q;
+  try {
+    const videos = await Video.find({ title: { $regex: query, $options: 'i' } }).limit(40);
+    return res.status(200).json(videos);
   } catch (error) {
     next(error);
   }

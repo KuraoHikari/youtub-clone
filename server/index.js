@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/comment', commentRoutes);
+app.use('/api/comments', commentRoutes);
 app.use('/api/videos', videoRoutes);
 
 app.use((err, req, res, next) => {

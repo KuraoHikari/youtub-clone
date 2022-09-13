@@ -1,5 +1,6 @@
 import { createError } from '../utils/error.js';
 import User from '../models/User.js';
+import Video from '../models/Video.js';
 export const updateUser = async (req, res, next) => {
   if (req.params.id === req.user.id) {
     try {
@@ -59,22 +60,28 @@ export const unSubscribeUser = async (req, res, next) => {
   }
 };
 export const like = async (req, res, next) => {
-  if (req.params.id === req.user.id) {
-    try {
-      await User.findByIdAndDelete(req.params.id);
-      return res.status(200).json('user has been deleted');
-    } catch (error) {
-      next(error);
-    }
-  } else return next(createError(403, 'action not allowed'));
+  const id = req.user.id;
+  const videoId = req.params.videoId;
+  try {
+    await Video.findByIdAndUpdate(videoId, {
+      $addToSet: { likes: id },
+      $pull: { dislikes: id },
+    });
+    return res.status(200).json('Liked the Video');
+  } catch (error) {
+    next(error);
+  }
 };
 export const dislike = async (req, res, next) => {
-  if (req.params.id === req.user.id) {
-    try {
-      await User.findByIdAndDelete(req.params.id);
-      return res.status(200).json('user has been deleted');
-    } catch (error) {
-      next(error);
-    }
-  } else return next(createError(403, 'action not allowed'));
+  const id = req.user.id;
+  const videoId = req.params.videoId;
+  try {
+    await Video.findByIdAndUpdate(videoId, {
+      $addToSet: { dislikes: id },
+      $pull: { likes: id },
+    });
+    return res.status(200).json('disLiked the Video');
+  } catch (error) {
+    next(error);
+  }
 };
