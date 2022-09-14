@@ -68,6 +68,8 @@ export const trenVideo = async (req, res, next) => {
   }
 };
 export const randomVideo = async (req, res, next) => {
+  const token = req.cookies.access_token;
+  console.log(token);
   try {
     const videos = await Video.aggregate([{ $sample: { size: 40 } }]);
     return res.status(200).json(videos);

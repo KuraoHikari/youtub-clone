@@ -1,6 +1,8 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { format } from 'timeago.js';
 
 const Container = styled.div`
   width: ${(props) => props.type !== 'sm' && '360px'};
@@ -43,17 +45,27 @@ const Info = styled.div`
   font-size: 14px;
   color: ${({ theme }) => theme.textSoft};
 `;
-const Card = ({ type }) => {
+const Card = ({ type, video }) => {
+  const [channel, setChannel] = useState({});
+  useEffect(() => {
+    const fetchChannel = async () => {
+      const res = await axios.get(`users/find/${video.userId}`);
+      setChannel(res.data);
+    };
+    fetchChannel();
+  }, [video.userId]);
   return (
-    <Link to="/video/test" style={{ textDecoration: 'none' }}>
+    <Link to={`/video/${video._id}`} style={{ textDecoration: 'none' }}>
       <Container type={type}>
-        <Image type={type} src="https://images.unsplash.com/photo-1571757767119-68b8dbed8c97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" />
+        <Image type={type} src={video.imgUrl} />
         <Details type={type}>
-          <ChannelImage type={type} src="https://images.unsplash.com/photo-1571757767119-68b8dbed8c97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" />
+          <ChannelImage type={type} src={channel.img} />
           <Texts>
-            <Title>Orewa Gundam de uku</Title>
-            <ChannelName>Gundam</ChannelName>
-            <Info>666,666 views 1 day ago</Info>
+            <Title>{video.title}</Title>
+            <ChannelName>{channel.name}</ChannelName>
+            <Info>
+              {video.views} views {format(video.createdAt)}
+            </Info>
           </Texts>
         </Details>
       </Container>
