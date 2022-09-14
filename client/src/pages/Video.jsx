@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownOffAltOutlinedIcon from '@mui/icons-material/ThumbDownOffAltOutlined';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ReplyOutlinedIcon from '@mui/icons-material/ReplyOutlined';
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 import Comments from '../components/Comments';
 import Card from '../components/Card';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { dislike, fetchSuccess, like } from '../redux/videoSlice';
+import { format } from 'timeago.js';
+import { subscription } from '../redux/userSlice';
 const Container = styled.div`
   display: flex;
   gap: 24px;
@@ -92,6 +100,48 @@ const Subscribe = styled.button`
   cursor: pointer;
 `;
 const Video = () => {
+  console.log('siniaaaaaaaaaaaaa');
+  const { currentUser } = useSelector((state) => state.user);
+  const { currentVideo } = useSelector((state) => state.video);
+  const dispatch = useDispatch();
+
+  const path = useLocation().pathname.split('/')[2];
+  // const [video,setVideo] = useState({})
+  const [channel, setChannel] = useState({});
+  const handleSub = async () => {
+    console.log('masuk');
+    currentUser.subscribedUsers.includes(channel._id) ? await axios.put(`/users/unsub/${channel._id}`) : await axios.put(`/users/sub/${channel._id}`);
+
+    dispatch(subscription(channel._id));
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let str = `/videos/find/` + path;
+        console.log(str);
+        const videoRes = await axios.get(str);
+        const channelRes = await axios.get(`/users/find/${videoRes.data.userId}`);
+
+        // setVideo(videoRes.data)
+        console.log(channelRes.data);
+        setChannel(channelRes.data);
+        dispatch(fetchSuccess(videoRes.data));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [path, dispatch]);
+  const handleLike = async () => {
+    await axios.put(`/users/like/${currentVideo._id}`);
+    dispatch(like(currentUser._id));
+  };
+  const handleDislike = async () => {
+    await axios.put(`/users/dislike/${currentVideo._id}`);
+    dispatch(dislike(currentUser._id));
+  };
+
   return (
     <Container>
       <Content>
@@ -101,20 +151,23 @@ const Video = () => {
             height="720"
             src="https://www.youtube.com/embed/JNpVrkzkz2U"
             title="yutube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
+            allowFullScreen
           ></iframe>
         </VideoWrapper>
-        <Title>Test Video</Title>
+        <Title>{currentVideo?.title}</Title>
         <Details>
-          <Info>7,948,156 view Jun 22, 2022</Info>
+          <Info>
+            {currentVideo?.views} view {format(currentVideo?.createdAt)}
+          </Info>
           <Buttons>
-            <Button>
-              <ThumbUpOutlinedIcon /> 123
+            <Button onClick={() => handleLike()}>
+              {currentVideo?.likes?.includes(currentUser._id) ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />} {currentVideo?.likes?.length}
             </Button>
-            <Button>
-              <ThumbDownOffAltOutlinedIcon /> Dislike
+            <Button onClick={() => handleDislike()}>
+              {currentVideo?.dislikes?.includes(currentUser._id) ? <ThumbDownIcon /> : <ThumbDownOffAltOutlinedIcon />}
+              {currentVideo?.dislikes?.length}
             </Button>
             <Button>
               <ReplyOutlinedIcon /> Share
@@ -127,23 +180,21 @@ const Video = () => {
         <Hr />
         <Channel>
           <ChannelInfo>
-            <Image src="https://images.unsplash.com/photo-1571757767119-68b8dbed8c97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" />
+            <Image src={channel?.img} />
             <ChannelDetail>
-              <ChannelName>Gundam</ChannelName>
-              <ChannelCounter>200K subscribers</ChannelCounter>
-              <Description>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloribus laborum delectus unde quaerat dolore culpa sit aliquam at. Vitae facere ipsum totam ratione exercitationem. Suscipit animi accusantium dolores ipsam ut.
-              </Description>
+              <ChannelName>{channel?.name}</ChannelName>
+              <ChannelCounter>{channel?.subscribers} subscribers</ChannelCounter>
+              <Description>{channel?.desc}</Description>
             </ChannelDetail>
           </ChannelInfo>
-          <Subscribe>SUBSCRIBE</Subscribe>
+          <Subscribe onClick={() => handleSub()}>{currentUser?.subscribedUsers?.includes(channel._id) ? 'SUBSCRIBED' : 'SUBSCRIBE'}aaaaaaaaaa</Subscribe>
         </Channel>
         <Hr />
         <Comments />
       </Content>
-      <Recomendation>
+      {/* <Recomendation>
         <Card type="sm" />
-      </Recomendation>
+      </Recomendation> */}
     </Container>
   );
 };

@@ -79,11 +79,16 @@ const Sign = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         axios
-          .post('/auth/google', {
-            name: result.user.displayName,
-            email: result.user.email,
-            img: result.user.photoURL,
-          })
+          .post(
+            `
+            /auth/google`,
+            {
+              name: result.user.displayName,
+              email: result.user.email,
+              img: result.user.photoURL,
+            },
+            { withCredentials: true }
+          )
           .then((res) => {
             dispatch(loginSuccess(res.data));
           });
@@ -97,7 +102,7 @@ const Sign = () => {
     e.preventDefault();
     dispatch(loginStart());
     try {
-      const res = await axios.post('/auth/signin', { name, password });
+      const res = await axios.post(`/auth/signin`, { name, password });
       dispatch(loginSuccess(res.data));
     } catch (error) {
       dispatch(loginFailure());
