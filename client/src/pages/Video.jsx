@@ -99,6 +99,11 @@ const Subscribe = styled.button`
   padding: 10px 20px;
   cursor: pointer;
 `;
+const VideoFrame = styled.video`
+  max-height: 720px;
+  object-fit: cover;
+  width: 100%;
+`;
 const Video = () => {
   console.log('siniaaaaaaaaaaaaa');
   const { currentUser } = useSelector((state) => state.user);
@@ -119,12 +124,12 @@ const Video = () => {
     const fetchData = async () => {
       try {
         let str = `/videos/find/` + path;
-        console.log(str);
+        // console.log(str);
         const videoRes = await axios.get(str);
         const channelRes = await axios.get(`/users/find/${videoRes.data.userId}`);
 
         // setVideo(videoRes.data)
-        console.log(channelRes.data);
+        // console.log(channelRes.data);
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
       } catch (error) {
@@ -146,7 +151,8 @@ const Video = () => {
     <Container>
       <Content>
         <VideoWrapper>
-          <iframe
+          <VideoFrame src={currentVideo.videoUrl}></VideoFrame>
+          {/* <iframe
             width="100%"
             height="720"
             src="https://www.youtube.com/embed/JNpVrkzkz2U"
@@ -154,7 +160,7 @@ const Video = () => {
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-          ></iframe>
+          ></iframe> */}
         </VideoWrapper>
         <Title>{currentVideo?.title}</Title>
         <Details>
@@ -190,7 +196,7 @@ const Video = () => {
           <Subscribe onClick={() => handleSub()}>{currentUser?.subscribedUsers?.includes(channel._id) ? 'SUBSCRIBED' : 'SUBSCRIBE'}aaaaaaaaaa</Subscribe>
         </Channel>
         <Hr />
-        <Comments />
+        <Comments videoId={currentVideo._id} />
       </Content>
       {/* <Recomendation>
         <Card type="sm" />
