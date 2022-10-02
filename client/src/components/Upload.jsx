@@ -71,22 +71,26 @@ const Upload = ({ setOpen }) => {
   const [video, setVideo] = useState(undefined);
   const [imgPerc, setImgPerc] = useState(0);
   const [videoPerc, setVideoPerc] = useState(0);
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
+  const [inputs, setInputs] = useState({});
+  // const [desc, setDesc] = useState('');
   const [tags, setTags] = useState([]);
-
+  const handleChange = (e) => {
+    setInputs((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+  };
   const handleTags = (e) => {
     setTags(e.target.value.split(','));
   };
 
-  const uploadFile = (file) => {
+  const uploadFile = (file, urlType) => {
     const storage = getStorage();
     const fileName = new Date().getTime() + file.name;
     const metadata = {
       contentType: 'image/jpeg',
     };
     const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+    const uploadTask = uploadBytesResumable(storageRef, file);
     uploadTask.on(
       'state_changed',
       (snapshot) => {
@@ -122,8 +126,8 @@ const Upload = ({ setOpen }) => {
         <Title>Upload a new Video</Title>
         <Label>Video:</Label>
         <Input type="file" accept="video/*" onChange={(e) => setVideo(e.target.files[0])} />
-        <Input type="text" placeholder="Title" onChange={(e) => setTitle(e.target.value)} />
-        <Desc placeholder="Description" rows={8} onChange={(e) => setDesc(e.target.value)} />
+        <Input type="text" name="title" placeholder="Title" onChange={handleChange} />
+        <Desc placeholder="Description" name="desc" rows={8} onChange={handleChange} />
         <Input type="text" placeholder="Sparate the tags with commas" onChange={(e) => handleTags(e)} />
         <Label>Image:</Label>
         <Input type="file" accept="image/*" onChange={(e) => setImg(e.target.files[0])} />
