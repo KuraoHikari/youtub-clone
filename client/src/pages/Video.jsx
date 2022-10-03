@@ -14,6 +14,7 @@ import axios from 'axios';
 import { dislike, fetchSuccess, like } from '../redux/videoSlice';
 import { format } from 'timeago.js';
 import { subscription } from '../redux/userSlice';
+import Recomendation from '../components/Recomendation';
 const Container = styled.div`
   display: flex;
   gap: 24px;
@@ -54,9 +55,6 @@ const Button = styled.div`
 const Hr = styled.hr`
   margin: 15px 0;
   border: 0.5px solid ${({ theme }) => theme.soft}; ;
-`;
-const Recomendation = styled.div`
-  flex: 2;
 `;
 const Channel = styled.div`
   display: flex;
@@ -193,14 +191,12 @@ const Video = () => {
               <Description>{channel?.desc}</Description>
             </ChannelDetail>
           </ChannelInfo>
-          <Subscribe onClick={() => handleSub()}>{currentUser?.subscribedUsers?.includes(channel._id) ? 'SUBSCRIBED' : 'SUBSCRIBE'}aaaaaaaaaa</Subscribe>
+          <Subscribe onClick={() => handleSub()}>{currentUser?.subscribedUsers?.includes(channel._id) ? 'SUBSCRIBED' : 'SUBSCRIBE'}</Subscribe>
         </Channel>
         <Hr />
         <Comments videoId={currentVideo._id} />
       </Content>
-      {/* <Recomendation>
-        <Card type="sm" />
-      </Recomendation> */}
+      <Recomendation tags={currentVideo.tags}></Recomendation>
     </Container>
   );
 };
