@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import app from '../firebase';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   width: 100%;
@@ -74,6 +77,8 @@ const Upload = ({ setOpen }) => {
   const [inputs, setInputs] = useState({});
   // const [desc, setDesc] = useState('');
   const [tags, setTags] = useState([]);
+
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setInputs((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
@@ -84,7 +89,7 @@ const Upload = ({ setOpen }) => {
   };
 
   const uploadFile = (file, urlType) => {
-    const storage = getStorage();
+    const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
     const metadata = {
       contentType: 'image/jpeg',
@@ -96,7 +101,7 @@ const Upload = ({ setOpen }) => {
       (snapshot) => {
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
+        urlType === 'imgUrl' ? setImgPerc(Math.round(progress)) : setVideoPerc(Math.round(progress));
         switch (snapshot.state) {
           case 'paused':
             console.log('Upload is paused');
@@ -108,15 +113,29 @@ const Upload = ({ setOpen }) => {
             break;
         }
       },
-      (error) => {}
+      (error) => {},
+      () => {
+        // Upload completed successfully, now we can get the download URL
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setInputs((prev) => {
+            return { ...prev, [urlType]: downloadURL };
+          });
+        });
+      }
     );
   };
   useEffect(() => {
-    uploadFile(video);
+    video && uploadFile(video, 'videoUrl');
   }, [video]);
   useEffect(() => {
-    uploadFile(img);
+    img && uploadFile(img, 'imgUrl');
   }, [img]);
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    const res = await axios.post('/videos', { ...inputs, tags });
+    setOpen(false);
+    res.status === 200 && navigate(`/video/${res.data._id}`);
+  };
   return (
     <Container>
       <Wrapper>
@@ -125,13 +144,13 @@ const Upload = ({ setOpen }) => {
         </Close>
         <Title>Upload a new Video</Title>
         <Label>Video:</Label>
-        <Input type="file" accept="video/*" onChange={(e) => setVideo(e.target.files[0])} />
+        {videoPerc > 0 ? 'Uploading' + videoPerc + '%' : <Input type="file" accept="video/*" onChange={(e) => setVideo(e.target.files[0])} />}
         <Input type="text" name="title" placeholder="Title" onChange={handleChange} />
         <Desc placeholder="Description" name="desc" rows={8} onChange={handleChange} />
         <Input type="text" placeholder="Sparate the tags with commas" onChange={(e) => handleTags(e)} />
         <Label>Image:</Label>
-        <Input type="file" accept="image/*" onChange={(e) => setImg(e.target.files[0])} />
-        <Button>Upload</Button>
+        {imgPerc > 0 ? 'Uploading' + imgPerc + '%' : <Input type="file" accept="image/*" onChange={(e) => setImg(e.target.files[0])} />}
+        <Button onClick={handleUpload}>Upload</Button>
       </Wrapper>
     </Container>
   );

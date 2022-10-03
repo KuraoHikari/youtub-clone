@@ -151,7 +151,7 @@ const Video = () => {
     <Container>
       <Content>
         <VideoWrapper>
-          <VideoFrame src={currentVideo.videoUrl}></VideoFrame>
+          <VideoFrame src={currentVideo.videoUrl} controls></VideoFrame>
           {/* <iframe
             width="100%"
             height="720"
